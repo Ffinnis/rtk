@@ -52,10 +52,10 @@ fn is_python_linter(linter: &str) -> bool {
     matches!(linter, "ruff" | "pylint" | "mypy" | "flake8")
 }
 
-/// Strip package manager prefixes (npx, bunx, pnpm, pnpm exec, yarn) from args.
+/// Strip package manager prefixes (npx, bunx, bun, pnpm, pnpm exec, yarn) from args.
 /// Returns the number of args to skip.
 fn strip_pm_prefix(args: &[String]) -> usize {
-    let pm_names = ["npx", "bunx", "pnpm", "yarn"];
+    let pm_names = ["npx", "bunx", "bun", "pnpm", "yarn"];
     let mut skip = 0;
     for arg in args {
         if pm_names.contains(&arg.as_str()) || arg == "exec" {
@@ -164,7 +164,7 @@ pub fn run(args: &[String], verbose: u8) -> Result<()> {
     }
 
     let output = cmd.output().context(format!(
-        "Failed to run {}. Is it installed? Try: pip install {} (or npm/pnpm for JS linters)",
+        "Failed to run {}. Is it installed? Try: pip install {} (or npm/pnpm/bun for JS linters)",
         linter, linter
     ))?;
 
@@ -616,6 +616,12 @@ mod tests {
     #[test]
     fn test_strip_pm_prefix_bunx() {
         let args: Vec<String> = vec!["bunx".into(), "eslint".into(), ".".into()];
+        assert_eq!(strip_pm_prefix(&args), 1);
+    }
+
+    #[test]
+    fn test_strip_pm_prefix_bun() {
+        let args: Vec<String> = vec!["bun".into(), "eslint".into(), ".".into()];
         assert_eq!(strip_pm_prefix(&args), 1);
     }
 

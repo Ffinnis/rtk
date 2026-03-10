@@ -24,21 +24,9 @@ pub fn run(cmd: PrismaCommand, args: &[String], verbose: u8) -> Result<()> {
     }
 }
 
-/// Create a Command that will run prisma (tries global first, then npx)
+/// Create a Command that will run prisma (tries global first, then package manager exec)
 fn create_prisma_command() -> Command {
-    let prisma_exists = Command::new("which")
-        .arg("prisma")
-        .output()
-        .map(|o| o.status.success())
-        .unwrap_or(false);
-
-    if prisma_exists {
-        Command::new("prisma")
-    } else {
-        let mut c = Command::new("npx");
-        c.arg("prisma");
-        c
-    }
+    crate::utils::package_manager_exec("prisma")
 }
 
 fn run_generate(args: &[String], verbose: u8) -> Result<()> {
@@ -57,7 +45,7 @@ fn run_generate(args: &[String], verbose: u8) -> Result<()> {
 
     let output = cmd
         .output()
-        .context("Failed to run prisma generate (try: npm install -g prisma)")?;
+        .context("Failed to run prisma generate (try: npm/bun install prisma)")?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);

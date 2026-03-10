@@ -1,40 +1,25 @@
 use crate::tracking;
-use crate::utils::truncate;
+use crate::utils::{package_manager_exec, truncate};
 use anyhow::{Context, Result};
 use regex::Regex;
 use std::collections::HashMap;
-use std::process::Command;
 
 pub fn run(args: &[String], verbose: u8) -> Result<()> {
     let timer = tracking::TimedExecution::start();
 
-    // Try tsc directly first, fallback to npx if not found
-    let tsc_exists = Command::new("which")
-        .arg("tsc")
-        .output()
-        .map(|o| o.status.success())
-        .unwrap_or(false);
-
-    let mut cmd = if tsc_exists {
-        Command::new("tsc")
-    } else {
-        let mut c = Command::new("npx");
-        c.arg("tsc");
-        c
-    };
+    let mut cmd = package_manager_exec("tsc");
 
     for arg in args {
         cmd.arg(arg);
     }
 
     if verbose > 0 {
-        let tool = if tsc_exists { "tsc" } else { "npx tsc" };
-        eprintln!("Running: {} {}", tool, args.join(" "));
+        eprintln!("Running: tsc {}", args.join(" "));
     }
 
     let output = cmd
         .output()
-        .context("Failed to run tsc (try: npm install -g typescript)")?;
+        .context("Failed to run tsc (try: npm/bun install typescript)")?;
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
     let raw = format!("{}\n{}", stdout, stderr);

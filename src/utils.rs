@@ -207,17 +207,19 @@ pub fn ok_confirmation(action: &str, detail: &str) -> String {
 }
 
 /// Detect the package manager used in the current directory.
-/// Returns "pnpm", "yarn", or "npm" based on lockfile presence.
+/// Returns "bun", "pnpm", "yarn", or "npm" based on lockfile presence.
 ///
 /// # Examples
 /// ```no_run
 /// use rtk::utils::detect_package_manager;
 /// let pm = detect_package_manager();
-/// // Returns "pnpm" if pnpm-lock.yaml exists, "yarn" if yarn.lock, else "npm"
+/// // Returns "bun" if bun.lock/bun.lockb exists, "pnpm" if pnpm-lock.yaml, etc.
 /// ```
 #[allow(dead_code)]
 pub fn detect_package_manager() -> &'static str {
-    if std::path::Path::new("pnpm-lock.yaml").exists() {
+    if std::path::Path::new("bun.lockb").exists() || std::path::Path::new("bun.lock").exists() {
+        "bun"
+    } else if std::path::Path::new("pnpm-lock.yaml").exists() {
         "pnpm"
     } else if std::path::Path::new("yarn.lock").exists() {
         "yarn"
@@ -240,6 +242,11 @@ pub fn package_manager_exec(tool: &str) -> Command {
     } else {
         let pm = detect_package_manager();
         match pm {
+            "bun" => {
+                let mut c = Command::new("bunx");
+                c.arg(tool);
+                c
+            }
             "pnpm" => {
                 let mut c = Command::new("pnpm");
                 c.arg("exec").arg("--").arg(tool);
@@ -403,7 +410,7 @@ mod tests {
         // In the test environment (rtk repo), there's no JS lockfile
         // so it should default to "npm"
         let pm = detect_package_manager();
-        assert!(["pnpm", "yarn", "npm"].contains(&pm));
+        assert!(["bun", "pnpm", "yarn", "npm"].contains(&pm));
     }
 
     #[test]

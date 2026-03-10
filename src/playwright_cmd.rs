@@ -245,6 +245,11 @@ pub fn run(args: &[String], verbose: u8) -> Result<()> {
     // binaries. Always resolve through the package manager.
     let pm = detect_package_manager();
     let mut cmd = match pm {
+        "bun" => {
+            let mut c = std::process::Command::new("bunx");
+            c.arg("playwright");
+            c
+        }
         "pnpm" => {
             let mut c = std::process::Command::new("pnpm");
             c.arg("exec").arg("--").arg("playwright");
@@ -285,7 +290,7 @@ pub fn run(args: &[String], verbose: u8) -> Result<()> {
 
     let output = cmd
         .output()
-        .context("Failed to run playwright (try: npm install -g playwright)")?;
+        .context("Failed to run playwright (try: npm/bun install playwright)")?;
 
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);

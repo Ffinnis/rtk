@@ -1655,15 +1655,15 @@ fn main() -> Result<()> {
                             _ => {
                                 // Passthrough other prisma subcommands
                                 let timer = tracking::TimedExecution::start();
-                                let mut cmd = std::process::Command::new("npx");
-                                for arg in &args {
+                                let mut cmd = utils::package_manager_exec("prisma");
+                                for arg in &args[1..] {
                                     cmd.arg(arg);
                                 }
-                                let status = cmd.status().context("Failed to run npx prisma")?;
+                                let status = cmd.status().context("Failed to run prisma")?;
                                 let args_str = args.join(" ");
                                 timer.track_passthrough(
-                                    &format!("npx {}", args_str),
-                                    &format!("rtk npx {} (passthrough)", args_str),
+                                    &format!("prisma {}", args_str),
+                                    &format!("rtk prisma {} (passthrough)", args_str),
                                 );
                                 if !status.success() {
                                     std::process::exit(status.code().unwrap_or(1));
@@ -1672,11 +1672,10 @@ fn main() -> Result<()> {
                         }
                     } else {
                         let timer = tracking::TimedExecution::start();
-                        let status = std::process::Command::new("npx")
-                            .arg("prisma")
+                        let status = utils::package_manager_exec("prisma")
                             .status()
-                            .context("Failed to run npx prisma")?;
-                        timer.track_passthrough("npx prisma", "rtk npx prisma (passthrough)");
+                            .context("Failed to run prisma")?;
+                        timer.track_passthrough("prisma", "rtk prisma (passthrough)");
                         if !status.success() {
                             std::process::exit(status.code().unwrap_or(1));
                         }

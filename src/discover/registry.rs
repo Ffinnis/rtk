@@ -1857,4 +1857,186 @@ mod tests {
             Some("rtk gh pr list".into())
         );
     }
+
+    // --- bun / bunx support ---
+
+    #[test]
+    fn test_classify_bun_install() {
+        assert!(matches!(
+            classify_command("bun install"),
+            Classification::Supported {
+                rtk_equivalent: "rtk proxy bun",
+                category: "PackageManager",
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn test_classify_bun_run() {
+        assert!(matches!(
+            classify_command("bun run dev"),
+            Classification::Supported {
+                rtk_equivalent: "rtk proxy bun",
+                category: "PackageManager",
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn test_classify_bunx_tsc() {
+        assert!(matches!(
+            classify_command("bunx tsc --noEmit"),
+            Classification::Supported {
+                rtk_equivalent: "rtk tsc",
+                category: "Build",
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn test_classify_bun_tsc() {
+        assert!(matches!(
+            classify_command("bun tsc --noEmit"),
+            Classification::Supported {
+                rtk_equivalent: "rtk tsc",
+                category: "Build",
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn test_classify_bunx_eslint() {
+        assert!(matches!(
+            classify_command("bunx eslint ."),
+            Classification::Supported {
+                rtk_equivalent: "rtk lint",
+                category: "Build",
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn test_classify_bunx_prettier() {
+        assert!(matches!(
+            classify_command("bunx prettier --check ."),
+            Classification::Supported {
+                rtk_equivalent: "rtk prettier",
+                category: "Build",
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn test_classify_bunx_vitest() {
+        assert!(matches!(
+            classify_command("bunx vitest run"),
+            Classification::Supported {
+                rtk_equivalent: "rtk vitest",
+                category: "Tests",
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn test_classify_bunx_playwright() {
+        assert!(matches!(
+            classify_command("bunx playwright test"),
+            Classification::Supported {
+                rtk_equivalent: "rtk playwright",
+                category: "Tests",
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn test_classify_bunx_prisma() {
+        assert!(matches!(
+            classify_command("bunx prisma generate"),
+            Classification::Supported {
+                rtk_equivalent: "rtk prisma",
+                category: "Build",
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn test_rewrite_bunx_tsc() {
+        assert_eq!(
+            rewrite_command("bunx tsc --noEmit", &[]),
+            Some("rtk tsc --noEmit".into())
+        );
+    }
+
+    #[test]
+    fn test_rewrite_bun_tsc() {
+        assert_eq!(
+            rewrite_command("bun tsc --noEmit", &[]),
+            Some("rtk tsc --noEmit".into())
+        );
+    }
+
+    #[test]
+    fn test_rewrite_bunx_eslint() {
+        assert_eq!(
+            rewrite_command("bunx eslint .", &[]),
+            Some("rtk lint .".into())
+        );
+    }
+
+    #[test]
+    fn test_rewrite_bunx_prettier() {
+        assert_eq!(
+            rewrite_command("bunx prettier --check src/", &[]),
+            Some("rtk prettier --check src/".into())
+        );
+    }
+
+    #[test]
+    fn test_rewrite_bunx_vitest() {
+        assert_eq!(
+            rewrite_command("bunx vitest run", &[]),
+            Some("rtk vitest run".into())
+        );
+    }
+
+    #[test]
+    fn test_rewrite_bunx_playwright() {
+        assert_eq!(
+            rewrite_command("bunx playwright test", &[]),
+            Some("rtk playwright test".into())
+        );
+    }
+
+    #[test]
+    fn test_rewrite_bunx_prisma() {
+        assert_eq!(
+            rewrite_command("bunx prisma generate", &[]),
+            Some("rtk prisma generate".into())
+        );
+    }
+
+    #[test]
+    fn test_rewrite_bunx_next_build() {
+        assert_eq!(
+            rewrite_command("bunx next build", &[]),
+            Some("rtk next".into())
+        );
+    }
+
+    #[test]
+    fn test_rewrite_bun_install() {
+        assert_eq!(
+            rewrite_command("bun install", &[]),
+            Some("rtk proxy bun install".into())
+        );
+    }
 }

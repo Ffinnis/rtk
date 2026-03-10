@@ -111,7 +111,7 @@ pub fn run(args: &[String], verbose: u8) -> Result<()> {
     }
 
     let output = cmd.output().context(format!(
-        "Failed to run {}. Is it installed? Try: pip install {} (or npm/pnpm for JS formatters)",
+        "Failed to run {}. Is it installed? Try: pip install {} (or npm/pnpm/bun for JS formatters)",
         formatter, formatter
     ))?;
 

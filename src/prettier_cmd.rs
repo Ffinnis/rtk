@@ -18,7 +18,7 @@ pub fn run(args: &[String], verbose: u8) -> Result<()> {
 
     let output = cmd
         .output()
-        .context("Failed to run prettier (try: npm install -g prettier)")?;
+        .context("Failed to run prettier (try: npm/bun install prettier)")?;
 
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);

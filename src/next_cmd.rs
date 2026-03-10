@@ -1,26 +1,12 @@
 use crate::tracking;
-use crate::utils::{strip_ansi, truncate};
+use crate::utils::{package_manager_exec, strip_ansi, truncate};
 use anyhow::{Context, Result};
 use regex::Regex;
-use std::process::Command;
 
 pub fn run(args: &[String], verbose: u8) -> Result<()> {
     let timer = tracking::TimedExecution::start();
 
-    // Try next directly first, fallback to npx if not found
-    let next_exists = Command::new("which")
-        .arg("next")
-        .output()
-        .map(|o| o.status.success())
-        .unwrap_or(false);
-
-    let mut cmd = if next_exists {
-        Command::new("next")
-    } else {
-        let mut c = Command::new("npx");
-        c.arg("next");
-        c
-    };
+    let mut cmd = package_manager_exec("next");
 
     cmd.arg("build");
 
@@ -29,13 +15,12 @@ pub fn run(args: &[String], verbose: u8) -> Result<()> {
     }
 
     if verbose > 0 {
-        let tool = if next_exists { "next" } else { "npx next" };
-        eprintln!("Running: {} build", tool);
+        eprintln!("Running: next build");
     }
 
     let output = cmd
         .output()
-        .context("Failed to run next build (try: npm install -g next)")?;
+        .context("Failed to run next build (try: npm/bun install next)")?;
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
     let raw = format!("{}\n{}", stdout, stderr);
