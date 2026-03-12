@@ -1,4 +1,5 @@
 use crate::tracking;
+use crate::utils::package_manager_exec;
 use anyhow::{Context, Result};
 use std::process::Command;
 
@@ -26,7 +27,7 @@ pub fn run(cmd: PrismaCommand, args: &[String], verbose: u8) -> Result<()> {
 
 /// Create a Command that will run prisma (tries global first, then package manager exec)
 fn create_prisma_command() -> Command {
-    crate::utils::package_manager_exec("prisma")
+    package_manager_exec("prisma")
 }
 
 fn run_generate(args: &[String], verbose: u8) -> Result<()> {
